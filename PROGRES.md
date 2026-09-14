@@ -32,6 +32,7 @@ Tahap 1 selesai: fondasi monorepo dibuat untuk Flutter mobile, dashboard Next.js
 - `npm run build:admin` — lulus.
 - `npm test` — lulus, 3/3 test API. Konfigurasi tes dipersempit ke API Clotso-X agar tidak menjalankan fixture milik UI UX Pro Max yang juga ada di workspace.
 - Setelah endpoint health/runbook ditambahkan: `npm run typecheck` dan `npm run build:admin` kembali lulus.
+- Deployment Vercel pertama menandai CVE pada Next.js 15.5.2. Audit juga menemukan advisory lanjutan pada 15.5.7, sehingga dependensi dinaikkan ke patch 15.5.25. `npm test`, typecheck, dan build kembali lulus. Audit production tidak lagi melaporkan critical; tersisa tiga advisory inherited PostCSS/Sharp yang perbaikannya memerlukan upgrade breaking ke Next 16 dan belum diterapkan otomatis.
 
 ## Catatan keputusan
 
