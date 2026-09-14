@@ -1,0 +1,11 @@
+node_modules/
+.next/
+.vercel/
+.env
+.env.local
+.dart_tool/
+.idea/
+build/
+coverage/
+android/.gradle/
+android/local.properties
