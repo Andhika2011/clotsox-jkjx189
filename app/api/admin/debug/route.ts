@@ -11,8 +11,15 @@ export async function POST(request: Request) {
   const sessionSecret = process.env.SESSION_HMAC_SECRET;
 
   const hashMatch = hashEnv ? await verifySecret(password, hashEnv) : false;
+  const parts = hashEnv?.split('$') ?? [];
   const hashFormat = hashEnv
-    ? { starts: hashEnv.slice(0, 7), length: hashEnv.length, segments: hashEnv.split('$').length }
+    ? {
+        starts: hashEnv.slice(0, 7),
+        length: hashEnv.length,
+        segments: parts.length,
+        // tampilkan 10 karakter pertama salt untuk verifikasi tanpa expose full hash
+        saltPreview: parts[1]?.slice(0, 10) ?? 'none',
+      }
     : null;
 
   return Response.json({
