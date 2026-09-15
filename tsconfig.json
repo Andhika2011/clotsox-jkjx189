@@ -24,7 +24,9 @@
     ]
   },
   "include": [
-    "api/**/*.ts",
+    "server/**/*.ts",
+    "app/**/*.ts",
+    "app/**/*.tsx",
     "apps/admin/**/*.ts",
     "apps/admin/**/*.tsx",
     ".next/types/**/*.ts"

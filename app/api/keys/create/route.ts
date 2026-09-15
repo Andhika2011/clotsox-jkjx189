@@ -1,2 +1,2 @@
-import endpoint from '../../../../api/keys/create';
+import endpoint from '../../../../server/keys/create';
 export const POST = endpoint.fetch;

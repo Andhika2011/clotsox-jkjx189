@@ -1,2 +1,2 @@
-import endpoint from '../../../../api/admin/login';
+import endpoint from '../../../../server/admin/login';
 export const POST = endpoint.fetch;
