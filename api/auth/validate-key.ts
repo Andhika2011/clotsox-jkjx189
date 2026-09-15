@@ -1,5 +1,5 @@
 import type { RequestLike, ResponseLike } from '../_lib/http';
-import { json, onlyPost, parseBody } from '../_lib/http';
+import { json, onlyPost, parseBody, webHandler } from '../_lib/http';
 import { sha256, verifySecret } from '../_lib/crypto';
 import { tierProfiles, type License } from '../_lib/license';
 import { rateLimit } from '../_lib/security';
@@ -7,7 +7,7 @@ import { getStore, setStore } from '../_lib/store';
 
 type ValidateBody = { key?: string; deviceHash?: string; appVersion?: string };
 
-export default async function handler(req: RequestLike, res: ResponseLike) {
+async function handler(req: RequestLike, res: ResponseLike) {
   if (!onlyPost(req, res) || !await rateLimit(req, res, 'license-validate', 10, 900)) return;
   const body = parseBody<ValidateBody>(req);
   const key = body?.key?.trim().toUpperCase() ?? '';
@@ -29,3 +29,4 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
     receipt: sha256(`${license.id}:${deviceHash}:${license.expiresAt}`).slice(0, 24),
   });
 }
+export default { fetch: (request: Request) => webHandler(request, handler) };

@@ -1,5 +1,5 @@
 import type { RequestLike, ResponseLike } from '../_lib/http';
-import { json, onlyPost, parseBody } from '../_lib/http';
+import { json, onlyPost, parseBody, webHandler } from '../_lib/http';
 import { hashSecret, randomToken } from '../_lib/crypto';
 import { isTier, tierProfiles, type License } from '../_lib/license';
 import { requireAdmin, rateLimit } from '../_lib/security';
@@ -7,7 +7,7 @@ import { setStore } from '../_lib/store';
 
 type CreateBody = { tier?: unknown; durationDays?: unknown; note?: unknown };
 
-export default async function handler(req: RequestLike, res: ResponseLike) {
+async function handler(req: RequestLike, res: ResponseLike) {
   if (!onlyPost(req, res) || !await rateLimit(req, res, 'key-create', 30, 3600)) return;
   const admin = requireAdmin(req, res);
   if (!admin) return;
@@ -31,3 +31,4 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
   await setStore(`audit:${randomToken(12)}`, JSON.stringify({ at: now.toISOString(), actor: admin.sub, action: 'license.created', licenseId: id, tier: body.tier }), 90 * 86_400);
   return json(res, 201, { key: rawKey, id, tier: body.tier, tierLabel: tierProfiles[body.tier].label, expiresAt: license.expiresAt, warning: 'Display this key once only; it cannot be recovered.' });
 }
+export default { fetch: (request: Request) => webHandler(request, handler) };

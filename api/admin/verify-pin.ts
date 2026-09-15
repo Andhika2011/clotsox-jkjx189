@@ -1,11 +1,11 @@
 import type { RequestLike, ResponseLike } from '../_lib/http';
-import { json, onlyPost, parseBody } from '../_lib/http';
+import { json, onlyPost, parseBody, webHandler } from '../_lib/http';
 import { signSession, verifySecret, verifySession } from '../_lib/crypto';
 import { cookieValue, rateLimit } from '../_lib/security';
 
 type PinBody = { pin?: string };
 
-export default async function handler(req: RequestLike, res: ResponseLike) {
+async function handler(req: RequestLike, res: ResponseLike) {
   if (!onlyPost(req, res) || !await rateLimit(req, res, 'admin-pin', 5, 900)) return;
   const pending = verifySession(cookieValue(req, 'cltx_pending'), 'admin-pending');
   const body = parseBody<PinBody>(req);
@@ -20,3 +20,4 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
   ]);
   return json(res, 200, { ok: true, next: '/dashboard' });
 }
+export default { fetch: (request: Request) => webHandler(request, handler) };

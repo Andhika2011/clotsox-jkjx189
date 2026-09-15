@@ -1,11 +1,11 @@
 import type { RequestLike, ResponseLike } from '../_lib/http';
-import { json, onlyPost, parseBody } from '../_lib/http';
+import { json, onlyPost, parseBody, webHandler } from '../_lib/http';
 import { signSession, verifySecret } from '../_lib/crypto';
 import { rateLimit } from '../_lib/security';
 
 type LoginBody = { email?: string; password?: string };
 
-export default async function handler(req: RequestLike, res: ResponseLike) {
+async function handler(req: RequestLike, res: ResponseLike) {
   if (!onlyPost(req, res) || !await rateLimit(req, res, 'admin-login', 5, 900)) return;
   const body = parseBody<LoginBody>(req);
   const email = body?.email?.trim().toLowerCase();
@@ -19,3 +19,4 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
   res.setHeader('Set-Cookie', `cltx_pending=${pending}; HttpOnly; Secure; SameSite=Strict; Path=/api/admin; Max-Age=300`);
   return json(res, 200, { ok: true, next: 'pin_verification' });
 }
+export default { fetch: (request: Request) => webHandler(request, handler) };

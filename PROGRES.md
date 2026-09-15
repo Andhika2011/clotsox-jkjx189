@@ -16,6 +16,7 @@ Tahap 1 selesai: fondasi monorepo dibuat untuk Flutter mobile, dashboard Next.js
 - Middleware UI admin, utilitas hash secret, panduan deployment, dan test policy lisensi.
 - Storage sekarang menggunakan Supabase REST/Postgres; variabel Upstash tidak lagi diperlukan.
 - Atas keputusan terbaru, adapter storage dimigrasikan ke Supabase REST/Postgres dengan atomic RPC rate-limit. SQL schema dan panduan tersedia di `docs/supabase-schema.sql` dan `docs/SUPABASE_SETUP.md`.
+- Endpoint Vercel diadaptasi ke runtime web `Request`/`Response` melalui `webHandler`; sebelumnya `/api/health` dapat 500 karena handler legacy `(req,res)`. Typecheck, 3 test API, dan build kembali lulus.
 - Runbook lengkap pengelolaan Vercel/Supabase dibuat di `docs/SERVER_RUNBOOK.md`, termasuk monitoring, backup, rotasi secret, dan respons insiden.
 - Endpoint publik minimal `GET /api/health` ditambahkan untuk readiness check tanpa membuka data lisensi.
 
