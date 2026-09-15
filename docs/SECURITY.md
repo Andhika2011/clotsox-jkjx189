@@ -13,11 +13,11 @@ Clotso-X dirancang dengan prinsip least privilege: aplikasi hanya meminta akses 
 
 - Kunci mentah hanya ditampilkan sekali ketika dibuat. Server menyimpan hash ber-pepper.
 - Token admin bertahan 15 menit dan token pending-2FA hanya 5 menit.
-- Terapkan rate limit berbasis Redis/KV untuk IP dan identitas pada seluruh endpoint autentikasi.
+- Terapkan rate limit atomic berbasis Supabase RPC untuk IP dan identitas pada seluruh endpoint autentikasi.
 - Terapapkan origin allowlist, CORS ketat untuk mobile, cookie `HttpOnly; Secure; SameSite=Strict` pada admin, dan rotasi secret.
 
 ## Sebelum rilis
 
-- Hubungkan storage adapter ke Upstash Redis atau Postgres; in-memory storage tidak boleh dipakai pada production.
+- Hubungkan storage adapter ke Supabase Postgres; in-memory storage tidak boleh dipakai pada production.
 - Jalankan penetration test, secret scan, dependency audit, dan review manual perubahan command Shizuku.
 - Siapkan privacy policy, export/delete data, serta persetujuan eksplisit sebelum membind device.

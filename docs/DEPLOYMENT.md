@@ -1,7 +1,7 @@
 # Deploy ke Vercel
 
 1. Buat proyek Vercel dengan root directory repositori ini. Framework akan mendeteksi Next.js; folder `api/` ikut diterbitkan sebagai Functions.
-2. Di Vercel pilih **Storage → Create Database → Upstash Redis**, lalu hubungkan ke proyek ini. Vercel akan menyuntikkan `UPSTASH_REDIS_REST_URL` dan `UPSTASH_REDIS_REST_TOKEN`; production akan menolak storage in-memory bila keduanya tidak tersedia.
+2. Buat project Supabase, jalankan `docs/supabase-schema.sql`, lalu isi `SUPABASE_URL` dan `SUPABASE_SECRET_KEY` di Vercel. Production akan menolak storage in-memory bila keduanya tidak tersedia.
 3. Buat hash password operator:
 
    ```powershell

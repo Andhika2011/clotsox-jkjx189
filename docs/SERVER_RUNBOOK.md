@@ -1,5 +1,7 @@
 # Runbook pengelolaan server Clotso-X
 
+> Catatan arsitektur: database utama sekarang Supabase Postgres. Bagian lama yang menyebut Upstash Redis berlaku sebagai referensi historis saja; gunakan [SUPABASE_SETUP.md](SUPABASE_SETUP.md) dan `supabase-schema.sql` untuk deployment baru.
+
 Dokumen ini adalah prosedur operasi untuk dashboard web dan API Clotso-X. Aplikasi Flutter tidak di-host di Vercel; aplikasi tersebut mengakses API pada domain Vercel melalui `API_URL` saat dibangun.
 
 ## 1. Arsitektur dan batas akses
@@ -8,7 +10,7 @@ Dokumen ini adalah prosedur operasi untuk dashboard web dan API Clotso-X. Aplika
 |---|---|---|
 | Dashboard | `app/` | Login operator, verifikasi tahap kedua, pembuatan key |
 | API | `api/` | Validasi key, sesi admin, device binding, rate limit |
-| Data | Upstash Redis | Lisensi, rate-limit, audit event |
+| Data | Supabase Postgres | Lisensi, rate-limit, audit event |
 | Mobile | `apps/mobile` | Meminta validasi dan menerapkan profil perangkat yang disetujui |
 
 Gunakan satu Vercel Team, bukan akun bersama. Tetapkan minimal dua Owner yang memakai MFA, lalu berikan peran terbatas kepada operator lain. Lindungi branch `main`: pull request wajib, review wajib, dan jangan izinkan force-push.
@@ -19,9 +21,9 @@ Gunakan satu Vercel Team, bukan akun bersama. Tetapkan minimal dua Owner yang me
 2. Di Vercel pilih **Add New → Project**, import repository, dan gunakan root directory `./`.
 3. Pastikan Framework Preset adalah **Next.js**. Biarkan Install Command default; gunakan Build Command `npm run build:admin`.
 4. Tekan Deploy untuk memastikan build dasar berhasil. Jangan jadikan deployment ini production karena secret dan database belum terhubung.
-5. Pada proyek Vercel pilih **Storage → Create Database → Upstash Redis**, buat database di region terdekat dengan pengguna/API, lalu hubungkan ke proyek. Integrasi ini memasukkan `UPSTASH_REDIS_REST_URL` dan `UPSTASH_REDIS_REST_TOKEN` otomatis.
+5. Buat project Supabase, jalankan `docs/supabase-schema.sql` di SQL Editor, lalu masukkan `SUPABASE_URL` dan `SUPABASE_SECRET_KEY` pada environment Vercel.
 
-Untuk proyek baru, gunakan Upstash Redis; Vercel KV sudah tidak tersedia. Upstash dipakai oleh aplikasi untuk key lisensi, device binding, rate-limit, dan audit event.
+Database production menggunakan Supabase Postgres; rate-limit dilakukan atomic melalui function SQL.
 
 ## 3. Menetapkan secrets
 
@@ -35,8 +37,8 @@ Di Vercel buka **Project → Settings → Environment Variables**. Masukkan nila
 | `ADMIN_2FA_PIN_HASH` | hasil hash PIN | PIN awal dapat `010511`, tetapi wajib diganti sebelum rilis publik |
 | `ADMIN_BOOTSTRAP_EMAIL` | email admin lowercase | Satu identitas bootstrap awal |
 | `APP_ORIGIN` | `https://admin.domain-anda.com` | Domain dashboard production |
-| `UPSTASH_REDIS_REST_URL` | dari integrasi Upstash | Jangan tulis di source code |
-| `UPSTASH_REDIS_REST_TOKEN` | dari integrasi Upstash | Secret database |
+| `SUPABASE_URL` | dari Supabase Project Settings → API | Jangan tulis di source code |
+| `SUPABASE_SECRET_KEY` | secret key Supabase | Hanya server-side |
 
 Untuk membuat hash password atau PIN pada komputer lokal:
 
