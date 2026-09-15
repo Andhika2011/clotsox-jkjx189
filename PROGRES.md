@@ -14,15 +14,16 @@ Tahap 1 selesai: fondasi monorepo dibuat untuk Flutter mobile, dashboard Next.js
 - Rancangan API login user/admin, OTP PIN tahap kedua, key provisioning dan audit log.
 - Dokumentasi keamanan dan environment template.
 - Middleware UI admin, utilitas hash secret, panduan deployment, dan test policy lisensi.
-- Storage Vercel diperbarui untuk Upstash Redis Marketplace (`UPSTASH_REDIS_REST_URL/TOKEN`); alias KV lama tetap didukung.
-- Runbook lengkap pengelolaan Vercel/Upstash dibuat di `docs/SERVER_RUNBOOK.md`, termasuk monitoring, backup, rotasi secret, dan respons insiden.
+- Storage sekarang menggunakan Supabase REST/Postgres; variabel Upstash tidak lagi diperlukan.
+- Atas keputusan terbaru, adapter storage dimigrasikan ke Supabase REST/Postgres dengan atomic RPC rate-limit. SQL schema dan panduan tersedia di `docs/supabase-schema.sql` dan `docs/SUPABASE_SETUP.md`.
+- Runbook lengkap pengelolaan Vercel/Supabase dibuat di `docs/SERVER_RUNBOOK.md`, termasuk monitoring, backup, rotasi secret, dan respons insiden.
 - Endpoint publik minimal `GET /api/health` ditambahkan untuk readiness check tanpa membuka data lisensi.
 
 ## Tahap berikutnya
 
 1. Instal Flutter SDK dan buat platform runner Android (`flutter create .`) tanpa menimpa `lib/`, lalu daftarkan `ClotsoChannel` di `MainActivity`.
 2. Tambahkan dependensi Shizuku resmi dan implementasikan bridge Android setelah API/SDK yang dipilih dikonfirmasi.
-3. Sambungkan endpoint Vercel ke Redis/KV atau Postgres produksi; saat ini storage adapter harus dipasangkan.
+3. Sambungkan endpoint Vercel ke Supabase production; jalankan schema dan uji RLS.
 4. Tambahkan test unit API, rate-limit persisten, dan deploy preview.
 5. Ganti PIN contoh `010511` sebelum produksi dengan TOTP/WebAuthn; PIN enam digit bukan faktor kuat secara mandiri.
 
