@@ -27,6 +27,7 @@ export default function Dashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tier: form.get('tier'),
+          prefix: form.get('prefix'),
           note: form.get('note'),
         }),
       });
@@ -71,6 +72,18 @@ export default function Dashboard() {
                     <option key={t.value} value={t.value}>{t.pct}% — {t.label} · {t.note}</option>
                   ))}
                 </select>
+              </label>
+              <label>PREFIX KEY <span>contoh: TAMA2026 → TAMA2026-CLTSX-NNN</span>
+                <input
+                  name="prefix"
+                  maxLength={24}
+                  required
+                  placeholder="NAMA atau KODE (huruf besar & angka)"
+                  style={{ textTransform: 'uppercase' }}
+                  pattern="[A-Za-z0-9_]{3,24}"
+                  title="3–24 karakter huruf, angka, atau underscore"
+                  onChange={e => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, ''); }}
+                />
               </label>
               <label>CATATAN INTERNAL <span>opsional</span>
                 <input name="note" maxLength={140} placeholder="Contoh: pelanggan / invoice" />

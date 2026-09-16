@@ -53,7 +53,7 @@ class _LicenseGateState extends State<LicenseGate> {
       const Text('Aktifkan profil perangkat Anda.', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800, height: 1.1)), const SizedBox(height: 12),
       const Text('Masukkan key dari admin untuk membuka tier optimasi. Semua profil hanya berlaku di perangkat ini.', style: TextStyle(color: _muted, height: 1.5)), const SizedBox(height: 28),
       Form(key: _formKey, child: TextFormField(controller: _controller, autocorrect: false, textCapitalization: TextCapitalization.characters, enabled: !_loading,
-        decoration: _field('CLTX-XXXXXX-XXXXXXXX', 'LICENSE KEY'), validator: (value) => (value == null || !value.trim().startsWith('CLTX-')) ? 'Masukkan key Clotso-X yang valid.' : null, onFieldSubmitted: (_) => _submit())),
+        decoration: _field('PREFIX-CLTSX-000', 'LICENSE KEY'), validator: (value) => (value == null || !RegExp(r'^[A-Z0-9_]{3,24}-CLTSX-\d{3}$').hasMatch(value.trim().toUpperCase())) ? 'Format key tidak valid. Contoh: NAMA2026-CLTSX-917' : null, onFieldSubmitted: (_) => _submit())),
       if (_error != null) Padding(padding: const EdgeInsets.only(top: 14), child: Text(_error!, style: const TextStyle(color: Color(0xFFFF8E9A)))),
       const SizedBox(height: 18), SizedBox(width: double.infinity, child: FilledButton(onPressed: _loading ? null : _submit, style: FilledButton.styleFrom(backgroundColor: _red, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 17)), child: Text(_loading ? 'MEMVALIDASI...' : 'VALIDASI KEY'))),
       if (_loading) Padding(padding: const EdgeInsets.only(top: 26), child: ValidationSteps(labels: _steps, active: _active)), const SizedBox(height: 28),

@@ -5,6 +5,7 @@ export type License = {
   id: string;
   secretHash: string;
   tier: Tier;
+  prefix: string;
   createdAt: string;
   deviceHash?: string;
   revokedAt?: string;
