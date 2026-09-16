@@ -19,14 +19,19 @@ async function handler(req: RequestLike, res: ResponseLike) {
   const license = JSON.parse(raw) as License;
   const pepper = process.env.LICENSE_PEPPER;
   if (!pepper || !await verifySecret(key, license.secretHash, pepper)) return json(res, 401, { error: 'license_invalid' });
-  if (license.revokedAt || Date.parse(license.expiresAt) <= Date.now()) return json(res, 403, { error: 'license_inactive' });
+  // Lisensi permanen — hanya cek revokedAt, tidak ada expiry
+  if (license.revokedAt) return json(res, 403, { error: 'license_revoked' });
   if (license.deviceHash && license.deviceHash !== deviceHash) return json(res, 403, { error: 'device_not_authorized' });
-  if (!license.deviceHash) { license.deviceHash = deviceHash; await setStore(`license:${license.id}`, JSON.stringify(license), Math.ceil((Date.parse(license.expiresAt) - Date.now()) / 1000)); }
+  // Ikat ke perangkat saat pertama kali digunakan
+  if (!license.deviceHash) {
+    license.deviceHash = deviceHash;
+    await setStore(`license:${license.id}`, JSON.stringify(license));
+  }
   const profile = tierProfiles[license.tier];
   return json(res, 200, {
-    license: { id: license.id, tier: license.tier, label: profile.label, expiresAt: license.expiresAt },
+    license: { id: license.id, tier: license.tier, label: profile.label },
     profile: { modules: profile.modules, description: profile.description, policy: 'device-only; no game modification' },
-    receipt: sha256(`${license.id}:${deviceHash}:${license.expiresAt}`).slice(0, 24),
+    receipt: sha256(`${license.id}:${deviceHash}:${license.createdAt}`).slice(0, 24),
   });
 }
 export default { fetch: (request: Request) => webHandler(request, handler) };

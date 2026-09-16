@@ -23,10 +23,9 @@ async function handler(req: RequestLike, res: ResponseLike) {
   if (license.revokedAt) return json(res, 409, { error: 'already_revoked' });
 
   license.revokedAt = new Date().toISOString();
-  const ttl = Math.max(0, Math.ceil((Date.parse(license.expiresAt) - Date.now()) / 1000));
-  await setStore(`license:${id}`, JSON.stringify(license), ttl || 86_400);
+  // Simpan tanpa TTL — lisensi yang direvoke tetap tersimpan sebagai catatan
+  await setStore(`license:${id}`, JSON.stringify(license));
 
-  // Audit trail
   await setStore(
     `audit:${randomToken(12)}`,
     JSON.stringify({ at: license.revokedAt, actor: admin.sub, action: 'license.revoked', licenseId: id }),

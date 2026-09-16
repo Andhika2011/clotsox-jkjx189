@@ -5,13 +5,11 @@ import { Sidebar } from '../../../components/sidebar';
 type License = {
   id: string;
   tier: string;
-  durationDays: number;
   createdAt: string;
-  expiresAt: string;
   revokedAt: string | null;
   bound: boolean;
   note: string | null;
-  status: 'active' | 'expired' | 'revoked';
+  status: 'active' | 'revoked';
 };
 
 const tierLabel: Record<string, string> = {
@@ -87,9 +85,7 @@ export default function LicensesPage() {
                   <tr>
                     <th>ID</th>
                     <th>TIER</th>
-                    <th>DURASI</th>
                     <th>DIBUAT</th>
-                    <th>KADALUARSA</th>
                     <th>DEVICE</th>
                     <th>CATATAN</th>
                     <th>STATUS</th>
@@ -101,9 +97,7 @@ export default function LicensesPage() {
                     <tr key={lic.id}>
                       <td><code>{lic.id}</code></td>
                       <td>{tierLabel[lic.tier] ?? lic.tier}</td>
-                      <td>{lic.durationDays}h</td>
                       <td>{fmt(lic.createdAt)}</td>
-                      <td>{fmt(lic.expiresAt)}</td>
                       <td>{lic.bound ? '✓ Terikat' : '— Bebas'}</td>
                       <td style={{ color: 'var(--muted)' }}>{lic.note ?? '—'}</td>
                       <td>

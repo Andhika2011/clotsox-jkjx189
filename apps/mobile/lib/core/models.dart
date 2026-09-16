@@ -1,9 +1,8 @@
 class LicenseSession {
-  const LicenseSession({required this.id, required this.tier, required this.label, required this.expiresAt, required this.modules, required this.description});
+  const LicenseSession({required this.id, required this.tier, required this.label, required this.modules, required this.description});
   final String id;
   final int tier;
   final String label;
-  final DateTime expiresAt;
   final List<String> modules;
   final String description;
 }

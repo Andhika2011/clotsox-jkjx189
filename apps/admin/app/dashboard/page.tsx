@@ -9,7 +9,7 @@ const tiers = [
   { value: 't4', pct: 76, label: 'Turbo', note: '6 modules' },
   { value: 't5', pct: 92, label: 'Apex', note: '7 modules' },
 ];
-type CreatedKey = { key: string; id: string; tierLabel: string; expiresAt: string };
+type CreatedKey = { key: string; id: string; tierLabel: string; createdAt: string };
 
 export default function Dashboard() {
   const [created, setCreated] = useState<CreatedKey | null>(null);
@@ -27,7 +27,6 @@ export default function Dashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tier: form.get('tier'),
-          durationDays: Number(form.get('duration')),
           note: form.get('note'),
         }),
       });
@@ -73,9 +72,6 @@ export default function Dashboard() {
                   ))}
                 </select>
               </label>
-              <label>DURASI (HARI)
-                <input name="duration" type="number" defaultValue="30" min="1" max="730" required />
-              </label>
               <label>CATATAN INTERNAL <span>opsional</span>
                 <input name="note" maxLength={140} placeholder="Contoh: pelanggan / invoice" />
               </label>
@@ -107,7 +103,7 @@ export default function Dashboard() {
             <div>
               <p className="eyebrow">KEY CREATED · {created.tierLabel.toUpperCase()}</p>
               <code>{created.key}</code>
-              <p>Berlaku sampai {new Date(created.expiresAt).toLocaleDateString('id-ID')}. Salin sekarang; key ini tidak dapat dipulihkan.</p>
+              <p>Lisensi permanen — aktif hingga direvoke. Salin sekarang; key ini tidak dapat dipulihkan.</p>
             </div>
             <button className="copy" onClick={() => navigator.clipboard.writeText(created.key)}>SALIN KEY</button>
           </section>

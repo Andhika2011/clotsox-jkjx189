@@ -24,7 +24,6 @@ class ApiClient {
         id: license['id'] as String,
         tier: license['tier'] as int,
         label: license['label'] as String,
-        expiresAt: DateTime.parse(license['expiresAt'] as String),
         modules: List<String>.from(profile['modules'] as List),
         description: profile['description'] as String,
       );
@@ -35,7 +34,7 @@ class ApiClient {
 
   String _errorLabel(String? code) => switch (code) {
     'license_not_found' || 'license_invalid' => 'Key tidak valid.',
-    'license_inactive' => 'Key sudah tidak aktif atau kedaluwarsa.',
+    'license_revoked' => 'Key sudah dinonaktifkan oleh admin.',
     'device_not_authorized' => 'Key ini telah terikat ke perangkat lain.',
     'too_many_requests' => 'Terlalu banyak percobaan. Coba lagi nanti.',
     _ => 'Validasi tidak dapat diselesaikan.',

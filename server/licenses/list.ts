@@ -14,30 +14,27 @@ async function handler(req: RequestLike, res: ResponseLike) {
   const key = supabaseKey();
   if (!url || !key) return json(res, 503, { error: 'storage_not_configured' });
 
-  // Ambil semua lisensi dari Supabase KV store (key prefix "license:")
   const response = await fetch(
-    `${url}/rest/v1/cltx_kv_store?select=key,value,expires_at&key=like.license%3A*&order=key.asc&limit=200`,
+    `${url}/rest/v1/cltx_kv_store?select=key,value&key=like.license%3A*&order=key.asc&limit=200`,
     { headers: { apikey: key, Authorization: `Bearer ${key}` } },
   );
   if (!response.ok) return json(res, 502, { error: 'storage_unavailable' });
 
-  const rows = await response.json() as Array<{ key: string; value: string; expires_at: string | null }>;
+  const rows = await response.json() as Array<{ key: string; value: string }>;
   const licenses = rows.map(row => {
     try {
       const data = JSON.parse(row.value) as {
-        id: string; tier: string; createdAt: string; expiresAt: string;
-        revokedAt?: string; deviceHash?: string; note?: string; durationDays: number;
+        id: string; tier: string; createdAt: string;
+        revokedAt?: string; deviceHash?: string; note?: string;
       };
       return {
         id: data.id,
         tier: data.tier,
-        durationDays: data.durationDays,
         createdAt: data.createdAt,
-        expiresAt: data.expiresAt,
         revokedAt: data.revokedAt ?? null,
         bound: Boolean(data.deviceHash),
         note: data.note ?? null,
-        status: data.revokedAt ? 'revoked' : Date.parse(data.expiresAt) < Date.now() ? 'expired' : 'active',
+        status: data.revokedAt ? 'revoked' : 'active',
       };
     } catch { return null; }
   }).filter(Boolean);
