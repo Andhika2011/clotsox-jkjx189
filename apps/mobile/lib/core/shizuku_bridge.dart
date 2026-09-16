@@ -1,110 +1,125 @@
-import 'dart:io';
-
 import 'package:flutter/services.dart';
 
 import 'models.dart';
 
-/// Bridge ke native Shizuku via MethodChannel.
-///
-/// Kalau channel belum tersedia (development / emulator / sebelum
-/// MainActivity mendaftarkan handler), semua method mengembalikan
-/// nilai fallback yang aman — bukan throw.
 class ShizukuBridge {
-  static const _channel = MethodChannel('com.clotsox.app/shizuku');
+  static const _ch = MethodChannel('com.clotsox.app/shizuku');
 
-  /// Kembalikan status Shizuku. Tidak pernah throw — fallback ke [ShizukuStatus.unavailable].
+  // ── Dasar ──────────────────────────────────────────────────────────────────
+
   Future<ShizukuStatus> status() async {
     try {
-      final result =
-          await _channel.invokeMethod<Map<Object?, Object?>>('status');
-      if (result == null) return ShizukuStatus.unavailable;
-      return ShizukuStatus.fromMap(result);
-    } on MissingPluginException {
-      // Channel belum didaftarkan di MainActivity — mode development
-      return ShizukuStatus.unavailable;
-    } on PlatformException {
-      return ShizukuStatus.unavailable;
-    }
+      final r = await _ch.invokeMethod<Map<Object?, Object?>>('status');
+      return r == null ? ShizukuStatus.unavailable : ShizukuStatus.fromMap(r);
+    } on MissingPluginException { return ShizukuStatus.unavailable; }
+    on PlatformException        { return ShizukuStatus.unavailable; }
   }
 
-  /// Minta akses Shizuku ke user. Tidak throw jika belum tersedia.
   Future<void> requestAccess() async {
     try {
-      await _channel.invokeMethod<void>('requestAccess');
+      await _ch.invokeMethod<void>('requestAccess');
     } on MissingPluginException {
-      // Diabaikan — belum diimplementasikan di native
-    } on PlatformException {
-      // Diabaikan — user cancel atau Shizuku tidak ada
-    }
-  }
-
-  /// Hasilkan device hash 64-char hex.
-  ///
-  /// Prioritas:
-  /// 1. Native `installationHash` via MethodChannel
-  /// 2. Fallback ke Android ID via platform info (jika native tidak tersedia)
-  /// 3. Throw [ShizukuException] jika semua gagal
-  Future<String> installationHash() async {
-    // Coba native dulu
-    try {
-      final value =
-          await _channel.invokeMethod<String>('installationHash');
-      if (value != null && RegExp(r'^[a-f0-9]{64}$').hasMatch(value)) {
-        return value;
-      }
-    } on MissingPluginException {
-      // Channel belum diimplementasikan — gunakan fallback
-    } on PlatformException {
-      // Native error — gunakan fallback
-    }
-
-    // Fallback: hash sederhana dari platform info yang tersedia
-    try {
-      final fallback = await _channel.invokeMethod<String>('deviceId');
-      if (fallback != null && fallback.isNotEmpty) {
-        // Pad / hash ke 64 char untuk konsistensi format
-        final padded = fallback
-            .replaceAll(RegExp(r'[^a-zA-Z0-9]'), '')
-            .toLowerCase()
-            .padRight(64, '0')
-            .substring(0, 64);
-        return padded;
-      }
-    } on MissingPluginException {
-      // tidak tersedia
-    } on PlatformException {
-      // tidak tersedia
-    }
-
-    // Untuk development / testing: hash dummy deterministik dari platform
-    final platform = Platform.operatingSystem;
-    final dummy = 'dev${platform.padRight(61, '0').substring(0, 61)}';
-    return dummy.padRight(64, '0').substring(0, 64);
-  }
-
-  /// Terapkan profil ke perangkat via native.
-  /// [profileId] harus merupakan ID yang dikenal (graphics, power, dll).
-  Future<void> applyProfile(String profileId) async {
-    // Validasi ID sebelum kirim ke native — tidak pernah kirim arbitrary string
-    const allowed = {
-      'graphics', 'power', 'display', 'network', 'memory', 'bloat', 'game'
-    };
-    if (!allowed.contains(profileId)) {
-      throw ShizukuException('Profile ID tidak dikenal: $profileId');
-    }
-    try {
-      await _channel.invokeMethod<void>('applyProfile', {'profileId': profileId});
-    } on MissingPluginException {
-      throw ShizukuException('Native bridge belum tersedia. Daftarkan ClotsoChannel di MainActivity.');
+      throw const ShizukuException('Native bridge tidak tersedia.');
     } on PlatformException catch (e) {
-      throw ShizukuException(e.message ?? 'Gagal menerapkan profil.');
+      throw ShizukuException(e.message ?? 'Gagal meminta akses Shizuku.');
     }
+  }
+
+  Future<String> installationHash() async {
+    try {
+      final v = await _ch.invokeMethod<String>('installationHash');
+      if (v != null && RegExp(r'^[a-f0-9]{64}$').hasMatch(v)) return v;
+    } on MissingPluginException catch (_) {
+      // channel belum tersedia — lanjut ke fallback
+    } on PlatformException catch (_) {
+      // native error — lanjut ke fallback
+    }
+    try {
+      final fb = await _ch.invokeMethod<String>('deviceId');
+      if (fb != null && fb.isNotEmpty) {
+        return fb.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '')
+            .toLowerCase().padRight(64, '0').substring(0, 64);
+      }
+    } on MissingPluginException catch (_) {
+      // tidak tersedia
+    } on PlatformException catch (_) {
+      // tidak tersedia
+    }
+    return 'dev${'0' * 61}';
+  }
+
+  // ── Profile ────────────────────────────────────────────────────────────────
+
+  Future<List<String>> applyProfile(String profileId) async {
+    const allowed = {'graphics','power','display','network','memory','bloat','game'};
+    if (!allowed.contains(profileId)) throw ShizukuException('Profile tidak dikenal: $profileId');
+    try {
+      final r = await _ch.invokeMethod<Map<Object?, Object?>>('applyProfile', {'profileId': profileId});
+      final log = r?['log'];
+      return log is List ? log.map((e) => e.toString()).toList() : [];
+    } on MissingPluginException { throw const ShizukuException('Native bridge tidak tersedia.'); }
+    on PlatformException catch (e) { throw ShizukuException(e.message ?? 'Gagal menerapkan profil.'); }
+  }
+
+  // ── Live stats ─────────────────────────────────────────────────────────────
+
+  Future<LiveStats> liveStats() async {
+    try {
+      final r = await _ch.invokeMethod<Map<Object?, Object?>>('liveStats');
+      if (r == null) return LiveStats.empty();
+      return LiveStats.fromMap(r);
+    } on MissingPluginException { return LiveStats.empty(); }
+    on PlatformException        { return LiveStats.empty(); }
+  }
+
+  // ── Device info ────────────────────────────────────────────────────────────
+
+  Future<DeviceInfo> deviceInfo() async {
+    try {
+      final r = await _ch.invokeMethod<Map<Object?, Object?>>('deviceInfo');
+      if (r == null) return DeviceInfo.empty();
+      return DeviceInfo.fromMap(r);
+    } on MissingPluginException { return DeviceInfo.empty(); }
+    on PlatformException        { return DeviceInfo.empty(); }
+  }
+
+  // ── Game list ──────────────────────────────────────────────────────────────
+
+  Future<List<GameEntry>> gameList() async {
+    try {
+      final r = await _ch.invokeMethod<List<Object?>>('gameList');
+      if (r == null) return [];
+      return r.whereType<Map<Object?, Object?>>()
+          .map(GameEntry.fromMap).toList();
+    } on MissingPluginException { return []; }
+    on PlatformException        { return []; }
+  }
+
+  // ── Optimize game (AOT) ────────────────────────────────────────────────────
+
+  Future<List<String>> optimizeGame(String package) async {
+    try {
+      final r = await _ch.invokeMethod<Map<Object?, Object?>>('optimizeGame', {'package': package});
+      final log = r?['log'];
+      return log is List ? log.map((e) => e.toString()).toList() : [];
+    } on MissingPluginException { throw const ShizukuException('Native bridge tidak tersedia.'); }
+    on PlatformException catch (e) { throw ShizukuException(e.message ?? 'Gagal optimasi game.'); }
+  }
+
+  // ── System score ───────────────────────────────────────────────────────────
+
+  Future<SystemScore> systemScore() async {
+    try {
+      final r = await _ch.invokeMethod<Map<Object?, Object?>>('systemScore');
+      if (r == null) return SystemScore.empty();
+      return SystemScore.fromMap(r);
+    } on MissingPluginException { return SystemScore.empty(); }
+    on PlatformException        { return SystemScore.empty(); }
   }
 }
 
 class ShizukuException implements Exception {
   const ShizukuException(this.message);
   final String message;
-  @override
-  String toString() => 'ShizukuException: $message';
+  @override String toString() => message;
 }

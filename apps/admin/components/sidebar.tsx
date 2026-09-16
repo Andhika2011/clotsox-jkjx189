@@ -44,14 +44,6 @@ export function Sidebar() {
           </a>
         ))}
       </nav>
-
-      {/* Session note */}
-      <div className="session-note">
-        <span className="dot" />
-        <span style={{ fontWeight: 600, color: 'var(--text)', fontSize: '12px' }}>Secure session</span>
-        <br />
-        <small>Auto-expire in 15 minutes</small>
-      </div>
     </aside>
   );
 }
