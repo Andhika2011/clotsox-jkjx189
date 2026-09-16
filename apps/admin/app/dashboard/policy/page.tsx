@@ -100,7 +100,7 @@ export default function PolicyPage() {
                 {tiers.map(t => (
                   <tr key={t.id}>
                     <td><code>{t.id}</code></td>
-                    <td style={{ color: 'var(--red)', fontWeight: 800 }}>{t.pct}%</td>
+                    <td style={{ color: 'var(--accent)', fontWeight: 800 }}>{t.pct}%</td>
                     <td>{t.label}</td>
                     <td>{t.modules} dari 7</td>
                   </tr>
