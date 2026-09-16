@@ -2,42 +2,42 @@ import { Sidebar } from '../../../components/sidebar';
 
 const policies = [
   {
-    icon: '🛡️',
+    icon: 'fa-solid fa-shield-halved',
     title: 'Tidak ada modifikasi file game',
     desc: 'Clotso-X tidak mengubah, membaca, atau menyuntikkan kode ke file game, anti-cheat, rank, aim, recoil, atau mekanik permainan apapun.',
   },
   {
-    icon: '🔑',
+    icon: 'fa-solid fa-key',
     title: 'Lisensi disimpan sebagai hash',
     desc: 'Kunci lisensi disimpan sebagai hash bcrypt ber-pepper. Server tidak dapat memulihkan key mentah setelah penerbitan.',
   },
   {
-    icon: '📱',
+    icon: 'fa-solid fa-mobile-screen',
     title: 'Binding satu perangkat',
     desc: 'Setelah aktivasi pertama, lisensi diikat ke device hash perangkat tersebut. Perpindahan perangkat memerlukan revoke dan penerbitan ulang.',
   },
   {
-    icon: '⏱️',
+    icon: 'fa-solid fa-clock',
     title: 'Sesi admin singkat',
     desc: 'Sesi operator berlaku 15 menit. Setelah itu, login ulang beserta verifikasi PIN 6-digit wajib dilakukan.',
   },
   {
-    icon: '🚦',
+    icon: 'fa-solid fa-gauge',
     title: 'Rate limiting aktif',
     desc: 'Endpoint login dibatasi 5 percobaan per 15 menit per IP. Endpoint validasi lisensi dibatasi 10 per 15 menit.',
   },
   {
-    icon: '📋',
+    icon: 'fa-solid fa-clipboard-list',
     title: 'Setiap aksi tercatat',
     desc: 'Semua penerbitan dan pencabutan lisensi dicatat di audit log dengan timestamp, actor, dan ID lisensi. Log disimpan 90 hari.',
   },
   {
-    icon: '🔄',
+    icon: 'fa-solid fa-rotate-left',
     title: 'Perubahan sistem dapat dipulihkan',
     desc: 'Semua perubahan yang diterapkan Clotso-X ke perangkat bersifat eksplisit, dapat ditinjau, dan memiliki restore point.',
   },
   {
-    icon: '🌐',
+    icon: 'fa-solid fa-lock',
     title: 'TLS-only & header keamanan',
     desc: 'Seluruh komunikasi API menggunakan HTTPS. Setiap response menyertakan Strict-Transport-Security, X-Frame-Options, dan Referrer-Policy.',
   },
@@ -63,7 +63,8 @@ export default function PolicyPage() {
         </div>
 
         <div className="notice">
-          ℹ️ Kebijakan ini diterapkan secara teknis di level server dan tidak dapat diubah melalui dashboard.
+          <i className="fa-solid fa-circle-info" style={{ marginRight: '8px' }} />
+          Kebijakan ini diterapkan secara teknis di level server dan tidak dapat diubah melalui dashboard.
           Untuk perubahan kebijakan, edit source code dan deploy ulang.
         </div>
 
@@ -73,7 +74,9 @@ export default function PolicyPage() {
           <div className="policy-section">
             {policies.map((p, i) => (
               <div className="policy-item" key={i}>
-                <span className="policy-icon">{p.icon}</span>
+                <span className="policy-icon">
+                  <i className={p.icon} />
+                </span>
                 <div>
                   <b>{p.title}</b>
                   <span>{p.desc}</span>

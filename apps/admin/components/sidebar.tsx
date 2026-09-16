@@ -2,10 +2,10 @@
 import { usePathname } from 'next/navigation';
 
 const navItems = [
-  { href: '/dashboard',          label: 'Overview',      icon: '⊞' },
-  { href: '/dashboard/licenses', label: 'Licenses',      icon: '🔑' },
-  { href: '/dashboard/audit',    label: 'Audit log',     icon: '📋' },
-  { href: '/dashboard/policy',   label: 'System policy', icon: '🛡' },
+  { href: '/dashboard',          label: 'Overview',      icon: 'fa-solid fa-gauge-high' },
+  { href: '/dashboard/licenses', label: 'Licenses',      icon: 'fa-solid fa-key' },
+  { href: '/dashboard/audit',    label: 'Audit log',     icon: 'fa-solid fa-clock-rotate-left' },
+  { href: '/dashboard/policy',   label: 'System policy', icon: 'fa-solid fa-shield-halved' },
 ];
 
 export function Sidebar() {
@@ -29,11 +29,17 @@ export function Sidebar() {
             key={item.href}
             href={item.href}
             className={pathname === item.href ? 'active' : undefined}
-            style={{ display: 'flex', alignItems: 'center', gap: '9px' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
           >
-            <span style={{ fontSize: '14px', lineHeight: 1, opacity: pathname === item.href ? 1 : 0.6 }}>
-              {item.icon}
-            </span>
+            <i
+              className={item.icon}
+              style={{
+                width: '16px',
+                textAlign: 'center',
+                fontSize: '13px',
+                opacity: pathname === item.href ? 1 : 0.5,
+              }}
+            />
             {item.label}
           </a>
         ))}

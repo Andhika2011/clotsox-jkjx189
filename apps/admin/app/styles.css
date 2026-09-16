@@ -14,9 +14,9 @@
   --danger-dim:  #fef2f2;
   --success:     #16a34a;
   --success-dim: #f0fdf4;
-  --radius-sm:   8px;
-  --radius:      12px;
-  --radius-lg:   18px;
+  --radius-sm:   6px;
+  --radius:      10px;
+  --radius-lg:   14px;
   --shadow-sm:   0 1px 3px #0000000d,0 1px 2px #00000008;
   --shadow:      0 4px 16px #0000000f,0 1px 4px #00000008;
   --shadow-lg:   0 12px 40px #00000014,0 2px 8px #0000000a;
@@ -45,7 +45,7 @@ a { color: inherit; text-decoration: none; }
 
 /* Kiri: headline + ilustrasi */
 .auth-left {
-  background: var(--accent-dim);
+  background: #0f1117;
   padding: 56px 64px;
   display: flex;
   flex-direction: column;
@@ -57,14 +57,14 @@ a { color: inherit; text-decoration: none; }
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 80% 60% at 30% 70%, #c4b9fb55, transparent);
+  background: radial-gradient(ellipse 60% 50% at 20% 80%, #5b4cf520, transparent);
   pointer-events: none;
 }
 .auth-left-brand {
   font-size: 17px;
   font-weight: 800;
   letter-spacing: -0.3px;
-  color: var(--text);
+  color: #ffffff;
   position: relative;
   z-index: 1;
 }
@@ -76,19 +76,19 @@ a { color: inherit; text-decoration: none; }
   z-index: 1;
 }
 .auth-headline h1 {
-  font-size: clamp(36px, 4.5vw, 56px);
+  font-size: clamp(34px, 4vw, 52px);
   font-weight: 900;
-  line-height: 1.05;
-  letter-spacing: -2px;
-  margin: 0 0 16px;
-  color: var(--text);
+  line-height: 1.0;
+  letter-spacing: -2.5px;
+  margin: 0 0 14px;
+  color: #ffffff;
 }
 .auth-headline p {
-  font-size: 15px;
-  color: var(--muted);
-  max-width: 340px;
+  font-size: 14px;
+  color: #6b7280;
+  max-width: 320px;
   margin: 0;
-  line-height: 1.6;
+  line-height: 1.55;
 }
 .auth-illustration {
   position: relative;
@@ -96,26 +96,26 @@ a { color: inherit; text-decoration: none; }
   margin: 40px 0;
 }
 .auth-card-mock {
-  background: var(--surface);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  padding: 22px 26px;
-  max-width: 260px;
-  border: 1px solid var(--border);
+  background: #1a1d27;
+  border-radius: 14px;
+  box-shadow: 0 8px 32px #00000040;
+  padding: 20px 24px;
+  max-width: 240px;
+  border: 1px solid #2a2d3a;
 }
 .auth-card-mock .mock-label {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 1.2px;
-  color: var(--muted);
+  color: #4b5263;
   text-transform: uppercase;
   margin-bottom: 8px;
 }
 .auth-card-mock .mock-key {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--accent);
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   font-family: monospace;
   margin-bottom: 14px;
 }
@@ -123,8 +123,8 @@ a { color: inherit; text-decoration: none; }
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--success-dim);
-  color: var(--success);
+  background: #0d2818;
+  color: #4ade80;
   font-size: 11px;
   font-weight: 700;
   padding: 4px 10px;
@@ -136,13 +136,14 @@ a { color: inherit; text-decoration: none; }
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--success);
+  background: #4ade80;
 }
 .auth-left-footer {
-  font-size: 12px;
-  color: var(--muted-light);
+  font-size: 11px;
+  color: #3a3d4a;
   position: relative;
   z-index: 1;
+  letter-spacing: 0.3px;
 }
 
 /* Kanan: form */
@@ -152,28 +153,30 @@ a { color: inherit; text-decoration: none; }
   flex-direction: column;
   justify-content: center;
   align-items: stretch;
-  padding: 56px 64px;
+  padding: 56px 72px;
   position: relative;
 }
 .auth-form-wrap {
   width: 100%;
-  max-width: 380px;
+  max-width: 360px;
   margin: 0 auto;
 }
 .auth-form-wrap .eyebrow {
-  margin: 0 0 10px;
+  margin: 0 0 12px;
 }
 .auth-form-wrap h2 {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 800;
-  letter-spacing: -1px;
+  letter-spacing: -0.8px;
   margin: 0 0 6px;
   color: var(--text);
+  line-height: 1.15;
 }
 .auth-form-wrap > p {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--muted);
-  margin: 0 0 32px;
+  margin: 0 0 28px;
+  line-height: 1.55;
 }
 
 /* ── Legacy auth-shell (fallback kalau ada page yang belum diupdate) ── */
@@ -579,7 +582,19 @@ td code {
   font-size: 14px;
 }
 .policy-item:last-child { border-bottom: none; }
-.policy-icon { font-size: 18px; line-height: 1; flex-shrink: 0; margin-top: 2px; }
+.policy-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
 .policy-item b { display: block; margin-bottom: 3px; font-weight: 600; }
 .policy-item span { color: var(--muted); font-size: 13px; }
 .notice {
