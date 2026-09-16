@@ -28,7 +28,7 @@ export default function AuditPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch('/api/audit')
+    fetch('/api/audit', { credentials: 'include' })
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(data => setEntries(data.entries))
       .catch(() => setError('Gagal memuat audit log. Pastikan sesi masih aktif.'))

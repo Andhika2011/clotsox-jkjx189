@@ -3,11 +3,11 @@ import { FormEvent, useState } from 'react';
 import { Sidebar } from '../../components/sidebar';
 
 const tiers = [
-  { value: 't1', pct: 30, label: 'Core', note: '3 modules' },
-  { value: 't2', pct: 45, label: 'Balance', note: '4 modules' },
-  { value: 't3', pct: 60, label: 'Performance', note: '5 modules' },
-  { value: 't4', pct: 76, label: 'Turbo', note: '6 modules' },
-  { value: 't5', pct: 92, label: 'Apex', note: '7 modules' },
+  { value: 30, pct: 30, label: 'Core', note: '3 modules' },
+  { value: 45, pct: 45, label: 'Balance', note: '4 modules' },
+  { value: 60, pct: 60, label: 'Performance', note: '5 modules' },
+  { value: 76, pct: 76, label: 'Turbo', note: '6 modules' },
+  { value: 92, pct: 92, label: 'Apex', note: '7 modules' },
 ];
 type CreatedKey = { key: string; id: string; tierLabel: string; createdAt: string };
 
@@ -25,8 +25,9 @@ export default function Dashboard() {
       const response = await fetch('/api/keys/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
-          tier: form.get('tier'),
+          tier: Number(form.get('tier')),
           prefix: form.get('prefix'),
           note: form.get('note'),
         }),
@@ -67,7 +68,7 @@ export default function Dashboard() {
             <p className="subtle">Key hanya diperlihatkan sekali. Setelah itu server menyimpan hash, bukan key mentah.</p>
             <form onSubmit={createKey}>
               <label>PERFORMANCE TIER
-                <select name="tier" defaultValue="t3">
+                <select name="tier" defaultValue="60">
                   {tiers.map(t => (
                     <option key={t.value} value={t.value}>{t.pct}% — {t.label} · {t.note}</option>
                   ))}

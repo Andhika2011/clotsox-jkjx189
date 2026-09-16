@@ -30,7 +30,7 @@ export default function LicensesPage() {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/licenses');
+      const res = await fetch('/api/licenses', { credentials: 'include' });
       if (!res.ok) throw new Error();
       const data = await res.json();
       setLicenses(data.licenses);
@@ -48,6 +48,7 @@ export default function LicensesPage() {
       const res = await fetch('/api/licenses/revoke', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ id }),
       });
       if (!res.ok) throw new Error();
