@@ -1,6 +1,6 @@
 # Progress Clotso-X
 
-Terakhir diperbarui: 2026-09-16 20:00 WIB
+Terakhir diperbarui: 2026-09-16 20:48 WIB
 
 ## Status saat ini
 
@@ -23,6 +23,16 @@ Tahap 1 selesai: fondasi monorepo dibuat untuk Flutter mobile, dashboard Next.js
 - Health route diisolasi menjadi Next Route Handler native untuk membedakan masalah routing/runtime dari konfigurasi Supabase; endpoint akan 503 secara aman jika secret belum tersedia.
 - Runbook lengkap pengelolaan Vercel/Supabase dibuat di `docs/SERVER_RUNBOOK.md`, termasuk monitoring, backup, rotasi secret, dan respons insiden.
 - Endpoint publik minimal `GET /api/health` ditambahkan untuk readiness check tanpa membuka data lisensi.
+- **Sesi 2026-09-16 (malam ke-2):** Bug kritis Flutter diperbaiki + UI admin di-redesign:
+  - **Flutter stuck di login diperbaiki:** Root cause — `installationHash()` memanggil native MethodChannel yang belum diimplementasikan, throw `MissingPluginException` yang tidak di-catch sehingga app stuck. Fix: semua method `ShizukuBridge` sekarang catch `MissingPluginException` + `PlatformException` dan mengembalikan fallback aman. `installationHash()` menggunakan fallback deterministik untuk dev mode.
+  - **Validasi real-time:** Sistem step sebelumnya adalah fake `Future.delayed(260ms)` — diganti dengan state machine `_StepInfo` (idle/running/done/failed) yang update real-time sesuai proses aktual. Setiap step server dari `ApiClient.onStep` callback langsung muncul di UI.
+  - **`ApiClient` diperbarui:** Menggunakan package `http`, timeout 15 detik, error message per HTTP status code dan error code server, parse `LicenseSession.fromJson`.
+  - **`LicenseSession.fromJson`** ditambahkan ke `models.dart`. `ShizukuStatus.unavailable` sebagai const. Module icons diganti dari emoji ke `IconData` Material Icons.
+  - **Banner konfigurasi:** Jika `API_URL` tidak di-set saat build, app menampilkan warning banner dan disable tombol validasi — bukan stuck/crash.
+  - **UI admin redesign:** light theme minimalis, split layout login/verify, sidebar FA icon, policy page FA icon, auth-left dark navy. FontAwesome 6.5.2 CDN ditambah di layout.tsx.
+  - **Tier mismatch diperbaiki:** Form dashboard sebelumnya mengirim tier sebagai string, server expect number.
+  - `flutter analyze`: no issues found. `npm run build:admin`: lulus.
+
 - **Sesi 2026-09-16 (malam):** Tier mismatch antara dashboard dan server diperbaiki. Dashboard `app/dashboard/page.tsx` sebelumnya mengirim tier sebagai string (`'t1'–'t5'`), sedangkan server `isTier()` memeriksa angka (`30/45/60/76/92`). Perbaikan:
   - `tiers` array di `dashboard/page.tsx`: `value` diubah dari string `'t1'` dll ke number `30/45/60/76/92`.
   - `defaultValue` select diubah dari `'t3'` ke `'60'`.
@@ -43,19 +53,23 @@ Tahap 1 selesai: fondasi monorepo dibuat untuk Flutter mobile, dashboard Next.js
 
 1. **Push & deploy ke Vercel**: Commit semua perubahan dan push ke branch main. Vercel akan auto-deploy. Verifikasi semua endpoint berfungsi di production.
 2. **Uji dashboard web end-to-end**: Login via browser, generate key dari form, pastikan licenses dan audit log tampil.
-3. **Sambungkan Supabase production**: Jalankan schema di `docs/supabase-schema.sql`, aktifkan RLS, isi env vars di Vercel Settings.
-4. **Inkonsistensi storage**: `server/licenses/list.ts` dan `server/audit/list.ts` menggunakan Supabase REST langsung (bukan `getStore`). Pertimbangkan migrasi ke `getStore` untuk konsistensi — bukan blocker tapi perlu diperhatikan.
-5. **Flutter Android**: Instal Flutter SDK, jalankan `flutter create .` di `apps/mobile` (tanpa menimpa `lib/`), daftarkan `ClotsoChannel` di `MainActivity`.
-6. **Shizuku bridge**: Tambahkan dependensi Shizuku dan implementasikan bridge Android setelah SDK dikonfirmasi.
-7. **Keamanan**: Ganti PIN contoh `010511` sebelum produksi dengan TOTP/WebAuthn. PIN 6-digit bukan faktor kuat secara mandiri.
+1. **Implementasi native Android (MainActivity):** Daftarkan `ClotsoChannel` di `MainActivity.kt` untuk mengimplementasikan `installationHash`, `status`, `requestAccess`, dan `applyProfile`. Ini yang membuat `ShizukuBridge` berfungsi di device nyata.
+2. **Build APK dengan `--dart-define`:** `flutter build apk --dart-define=API_URL=https://clotsox-jkjx189-one.vercel.app` — wajib untuk distribusi.
+3. **Push & deploy Vercel:** Commit semua perubahan dan push ke main.
+4. **Setup Supabase production:** Jalankan `docs/supabase-schema.sql`, isi env vars di Vercel.
+5. **Uji end-to-end di device Android:** Pasang APK, masukkan key, pastikan validasi berjalan dan step real-time tampil.
+6. **Keamanan:** Ganti PIN `010511` dengan TOTP sebelum distribusi publik.
+7. **Distribusi:** Siapkan signed APK (`flutter build apk --release`) untuk distribusi ke pelanggan.
 
-## Verifikasi terakhir (2026-09-16 20:00 WIB)
+## Verifikasi terakhir (2026-09-16 20:48 WIB)
 
-- `npm run build:admin` — lulus. 8 API route sebagai ƒ Dynamic: `/api/admin/login`, `/api/admin/verify-pin`, `/api/audit`, `/api/auth/validate-key`, `/api/health`, `/api/keys/create`, `/api/licenses`, `/api/licenses/revoke`.
-- Dashboard pages compiled: `/dashboard`, `/dashboard/audit`, `/dashboard/licenses`, `/dashboard/policy`.
-- API end-to-end via curl lulus: login → verify-pin → create key berhasil di Vercel production (`clotsox-jkjx189-one.vercel.app`).
-- Tier mismatch antara form dashboard (string) dan server (number) telah diperbaiki.
-- Semua fetch di dashboard menggunakan `credentials: 'include'`.
+- `flutter analyze` — no issues found.
+- `npm run build:admin` — lulus. 8 API route dynamic + semua dashboard pages compiled.
+- Flutter stuck di login diperbaiki: `ShizukuBridge` sekarang catch `MissingPluginException` di semua method.
+- Real-time validation steps: state machine `_StepInfo` (idle/running/done/failed), tidak ada fake delay.
+- `ApiClient`: http package, timeout 15s, error per status code, `LicenseSession.fromJson`.
+- Banner konfigurasi jika `API_URL` kosong.
+- UI admin: light minimalis, FA icons, auth-left dark navy, split layout.
 
 ## Verifikasi sebelumnya (2026-09-15 20:04 WIB)
 
